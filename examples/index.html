@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <img src="" alt="">
+        <button id="ajaxButton" type="button">Make a request</button>
+        <button id="sourceButton" type="button">Make a source</button>
+<script>
+(function(){
+        document.getElementById('sourceButton').onclick=function(){
+            document.getElementsByTagName('img')[0].src="https://xxx.com/1.png"
+        }
+    }
+)();
+(function() {
+  var httpRequest;
+  document.getElementById("ajaxButton").addEventListener('click', makeRequest);
+
+  function makeRequest() {
+    httpRequest = new XMLHttpRequest();
+
+    if (!httpRequest) {
+      alert('Giving up :( Cannot create an XMLHTTP instance');
+      return false;
+    }
+    httpRequest.onreadystatechange = alertContents;
+    httpRequest.open('GET', 'test.html');
+    httpRequest.send();
+  }
+
+  function alertContents() {
+    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+      if (httpRequest.status === 200) {
+        alert(httpRequest.responseText);
+      } else {
+      }
+    }
+  }
+})();
+</script>
+    </div>
+</body>
+<script src="./shatter.js"></script>
+<script>
+    const Shatter = new shatter.init({
+        dsn: 'https://test.url.com',
+        appkey: 'cube',
+        debug: false
+    });
+    
+</script>
+<script>
+</script>
+</html>

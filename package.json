@@ -1,0 +1,43 @@
+{
+  "name": "shatter",
+  "version": "1.0.0",
+  "description": "A SDK for monitoring browser errors",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/types/src/index.d.ts",
+  "scripts": {
+    "build": "cross-env IGNORE=localDebug rollup --config",
+    "watch:example": "cross-env INCLUDE=examplePackage rollup --config --watch",
+    "watch:groot": "cross-env INCLUDE=localDebug rollup  --config --watch",
+    "watch": "rollup --config --watch",
+    "js": "node examples/shatter.js"
+  },
+  "author": "mangotsing",
+  "license": "MIT",
+  "keywords": [
+    "collect",
+    "sdk",
+    "error",
+    "broswer"
+  ],
+  "devDependencies": {
+    "@rollup/plugin-alias": "^3.1.1",
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-html": "^0.2.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@rollup/plugin-typescript": "^4.1.2",
+    "@typescript-eslint/eslint-plugin": "^3.6.1",
+    "@typescript-eslint/parser": "^3.6.1",
+    "cross-env": "^7.0.2",
+    "eslint": "^7.4.0",
+    "eslint-plugin-html": "^6.0.2",
+    "prettier": "^2.0.5",
+    "rollup": "^2.21.0",
+    "rollup-plugin-clear": "^2.0.7",
+    "rollup-plugin-terser": "^6.1.0",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.9.3"
+  }
+}
