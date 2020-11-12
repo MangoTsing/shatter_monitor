@@ -112,11 +112,12 @@ export class init {
     }
 
     log(params:SendType) {
+        const { dsn, appkey } = this.options
         Object.assign(params, {
-            _t: new Date().getTime()
+            _t: new Date().getTime(),
+            appkey
         })
         const query = obj2query(params)
-        const dsn = this.options.dsn
         if (this.options.debug) {
             console.log(`log to : ${dsn}?${query}`)
             return
