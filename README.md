@@ -2,6 +2,8 @@
 
 A tiny tool for Browser Monitor.
 
+Specific options information may be viewed in `./src/types/sendType.ts`
+
 ## Usege
 
 ```
@@ -18,4 +20,14 @@ If your browser support `navigator.sendBeacon` function, will use it.
 
 Otherwise use `Image()` to send a `get` request for monitor.
 
-Specific options information may be viewed in `./src/types/sendType.ts`
+## Dev
+
+```
+
+yarn
+
+yarn watch
+
+
+```
+
