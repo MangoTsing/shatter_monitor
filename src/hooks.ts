@@ -1,14 +1,14 @@
-import { HooksTypes } from './types/index'
+import { SendType } from 'types/sendType'
+import { HooksClassType, HooksTypes } from './types/index'
 
-export default class Hooks {
-    private options
+export default class Hooks implements HooksTypes, HooksClassType {
+    public options
 
     constructor(options) {
         this.options = options
     }
-
-    beforSendData(params) {
-
+    
+    beforeSendData?(params: SendType): boolean | Event | PromiseLike<Event> {
         if (!this.options.beforSendData) return true
 
         try {
@@ -18,4 +18,5 @@ export default class Hooks {
             return false
         }
     }
+
 }

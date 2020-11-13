@@ -102,7 +102,7 @@ var shatter = (function (exports) {
         constructor(options) {
             this.options = options;
         }
-        beforSendData(params) {
+        beforeSendData(params) {
             if (!this.options.beforSendData)
                 return true;
             try {

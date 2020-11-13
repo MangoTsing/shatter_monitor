@@ -34,7 +34,7 @@ export interface HooksTypes {
      *
      * 如果返回 false 时，将忽略本次上传
      */
-    beforeDataSend?(event: SendType): PromiseLike<Event | null> | Event | CANCEL
+    beforeSendData?(event: SendType): PromiseLike<Event | null> | Event | CANCEL
 
 }
   
@@ -51,4 +51,8 @@ export interface BlockEventTypes {
      */
     blockVueWarn?: boolean
 
+}
+
+export interface HooksClassType {
+    options: InitOptions
 }
