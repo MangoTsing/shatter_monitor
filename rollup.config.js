@@ -68,7 +68,7 @@ const localDebug = {
 const iifePackage = {
   input: 'src/index.ts',
   output: {
-    file: 'dist/index.min.js',
+    file: 'build/index.min.js',
     format: 'iife',
     name: 'shatter',
     context: 'window'
