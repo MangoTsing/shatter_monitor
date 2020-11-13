@@ -29,12 +29,10 @@ export interface InitOptions extends BlockEventTypes, HooksTypes {
 }
   
 export interface HooksTypes {
-
     /**
      * 钩子函数，在每次发送事件前会调用
      *
-     * event SDK生成的错误事件
-     * 如果返回 null | undefined | boolean 时，将忽略本次上传
+     * 如果返回 false 时，将忽略本次上传
      */
     beforeDataSend?(event: SendType): PromiseLike<Event | null> | Event | CANCEL
 

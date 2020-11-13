@@ -1,8 +1,10 @@
 import { InitOptions } from './types/index'
 import { obj2query } from 'utils'
-import { catchXhr, catchFetch } from './xhr'
+import { catchXhr, catchFetch } from './catchRequest'
 import { SendType } from './types/sendType'
 import { ERRORTYPES } from './common/errorType'
+import { BindEvent } from './eventHandle'
+import Hooks from './hooks'
 
 function hasSendBeacon() {
     return window.navigator && !!window.navigator.sendBeacon
@@ -16,13 +18,12 @@ function sendBeacon(params, type='formData') {
     if (type !== 'formData') return
     const formData = new FormData()
     for (const item in params) {
-        if (item !== 'dsn') {
-            let content = params[item]
-            if (typeof content === 'object') {
-                content = JSON.stringify(content)
-            }
-            formData.append(item, content)
+        if (item === 'dsn') continue
+        let content = params[item]
+        if (typeof content === 'object') {
+            content = JSON.stringify(content)
         }
+        formData.append(item, content)
     }
     window.navigator.sendBeacon(params.dsn, formData)
 }
@@ -30,48 +31,19 @@ function sendBeacon(params, type='formData') {
 export class init {
     private options: InitOptions
     private sendType = 'img'
+    private hooks
 
     constructor(options:InitOptions){
         this.options = options
+        this.hooks = new Hooks(options)
 
         if (hasSendBeacon()) {
             this.sendType = 'beacon'
         }
 
-        window.onerror = (msg:string, url, line, col) => {
-            this.log({
-                name: 'onerror', msg, url, line, col, type: ERRORTYPES['JAVASCRIPT_ERROR']
-            })
-        }
-        window.addEventListener('error', event => {
-            // 过滤js error
-            const target = event.target || event.srcElement
-            const isElementTarget = target instanceof HTMLScriptElement || target instanceof HTMLLinkElement || target instanceof HTMLImageElement
-            if (!isElementTarget) return false
-            // 上报资源地址
-            const url = (<HTMLImageElement>target).src || (<HTMLLinkElement>target).href
-            this.log({
-                name: 'addError', url, type: ERRORTYPES['RESOURCE_ERROR']
-            })
-        }, true)
-        window.addEventListener('unhandledrejection', event => {
-            if (!event.reason || !event.reason.stack) {
-                this.log({
-                    name: 'unhandledrejection',
-                    type: ERRORTYPES['PROMISE_ERROR']
-                })
-                return
-            }
-            const fileMsg = event.reason.stack.split('\n')[1].split('at ')[1]
-            const fileArr = fileMsg.split(':')
-            const line = fileArr[fileArr.length - 2]
-            const col = fileArr[fileArr.length - 1]
-            const url = fileMsg.slice(0, -line.length -col.length - 2)
-            const msg = event.reason.message;
-            this.log({
-                name: 'unhandledrejection', msg, url, line, col, type: ERRORTYPES['PROMISE_ERROR']
-            })
-        }, true)
+        BindEvent(this)
+
+
         catchXhr((event: any) => {
             const target = event.currentTarget
             this.log({
@@ -84,6 +56,8 @@ export class init {
                 }
             })
         })
+
+
         catchFetch((res: Response) => {
             this.log({
                 name: 'fetchError',
@@ -117,6 +91,13 @@ export class init {
             _t: new Date().getTime(),
             appkey
         })
+
+        let pass
+        async () => {
+            pass = await this.hooks.beforSendData()
+        }
+        if (!pass) return false
+
         const query = obj2query(params)
         if (this.options.debug) {
             console.log(`log to : ${dsn}?${query}`)

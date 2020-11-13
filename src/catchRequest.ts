@@ -1,3 +1,4 @@
+
 /* eslint-disable prefer-rest-params */
 export const catchXhr = function(sendFn:(event: ProgressEvent) => void) {
     if(!window.XMLHttpRequest) return;

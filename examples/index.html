@@ -10,10 +10,19 @@
         <img src="" alt="">
         <button id="ajaxButton" type="button">Make a request</button>
         <button id="sourceButton" type="button">Make a source</button>
+        <button id="fetchButton" type="button">Make a fetch</button>
 <script>
 (function(){
         document.getElementById('sourceButton').onclick=function(){
             document.getElementsByTagName('img')[0].src="https://xxx.com/1.png"
+        }
+    }
+)();
+(function(){
+        document.getElementById('fetchButton').onclick=function(){
+          fetch('/fetch', {
+            method: 'POST'
+          })
         }
     }
 )();
