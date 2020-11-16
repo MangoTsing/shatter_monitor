@@ -1,6 +1,19 @@
 var shatter = (function (exports) {
     'use strict';
 
+    function obj2query(obj) {
+        return Object.entries(obj).reduce((result, [key, value], index) => {
+            if (typeof value === 'object') {
+                value = JSON.stringify(value);
+            }
+            if (index !== 0) {
+                result += '&';
+            }
+            result += `${key}=${value}`;
+            return result;
+        }, '');
+    }
+
     const catchXhr = function (sendFn) {
         if (!window.XMLHttpRequest)
             return;
@@ -51,24 +64,37 @@ var shatter = (function (exports) {
 
     var ERRORTYPES;
     (function (ERRORTYPES) {
-        ERRORTYPES["UNKNOWN"] = "UNKNOWN";
-        ERRORTYPES["UNKNOWN_FUNCTION"] = "UNKNOWN_FUNCTION";
         ERRORTYPES["JAVASCRIPT_ERROR"] = "JAVASCRIPT_ERROR";
         ERRORTYPES["BUSINESS_ERROR"] = "BUSINESS_ERROR";
         ERRORTYPES["LOG_ERROR"] = "LOG_ERROR";
         ERRORTYPES["FETCH_ERROR"] = "HTTP_ERROR";
-        ERRORTYPES["VUE_ERROR"] = "VUE_ERROR";
         ERRORTYPES["RESOURCE_ERROR"] = "RESOURCE_ERROR";
         ERRORTYPES["PROMISE_ERROR"] = "PROMISE_ERROR";
     })(ERRORTYPES || (ERRORTYPES = {}));
 
     const BindEvent = function (w) {
-        window.onerror = (msg, url, line, col) => {
+        const originAddEventListener = EventTarget.prototype.addEventListener;
+        EventTarget.prototype.addEventListener = function (type, listener, options) {
+            const wrappedListener = function () {
+                try {
+                    return listener.apply(this, arguments);
+                }
+                catch (err) {
+                    throw err;
+                }
+            };
+            return originAddEventListener.call(this, type, wrappedListener, options);
+        };
+        const oldError = window.onerror || null;
+        window.onerror = (msg, url, line, col, error) => {
             w.log({
                 name: 'jserror', msg, url, line, col, type: ERRORTYPES['JAVASCRIPT_ERROR']
             });
+            oldError && oldError(msg, url, line, col, error);
         };
         window.addEventListener('error', event => {
+            if (!event)
+                return;
             const target = event.target || event.srcElement;
             const isElementTarget = target instanceof HTMLScriptElement || target instanceof HTMLLinkElement || target instanceof HTMLImageElement;
             if (!isElementTarget)
@@ -103,10 +129,10 @@ var shatter = (function (exports) {
             this.options = options;
         }
         beforeSendData(params) {
-            if (!this.options.beforSendData)
+            if (!this.options.beforeSendData)
                 return true;
             try {
-                return this.options.beforSendData(params);
+                return this.options.beforeSendData(params);
             }
             catch (e) {
                 throw e;
@@ -116,6 +142,24 @@ var shatter = (function (exports) {
 
     function hasSendBeacon() {
         return window.navigator && !!window.navigator.sendBeacon;
+    }
+    function sendImgLog(url) {
+        new Image().src = url;
+    }
+    function sendBeacon(params, type = 'formData') {
+        if (type !== 'formData')
+            return;
+        const formData = new FormData();
+        for (const item in params) {
+            if (item === 'dsn')
+                continue;
+            let content = params[item];
+            if (typeof content === 'object') {
+                content = JSON.stringify(content);
+            }
+            formData.append(item, content);
+        }
+        window.navigator.sendBeacon(params.dsn, formData);
     }
     class init {
         constructor(options) {
@@ -170,7 +214,22 @@ var shatter = (function (exports) {
                 _t: new Date().getTime(),
                 appkey
             });
-            return false;
+            const pass = this.hooks.beforeSendData();
+            if (!pass)
+                return false;
+            const query = obj2query(params);
+            if (this.options.debug) {
+                console.log(`log to : ${dsn}?${query}`);
+                return;
+            }
+            if (this.sendType === 'img') {
+                sendImgLog(`${dsn}?${query}`);
+            }
+            else if (this.sendType === 'beacon') {
+                sendBeacon(Object.assign(params, {
+                    dsn
+                }));
+            }
         }
     }
 

@@ -9,10 +9,10 @@ export default class Hooks implements HooksTypes, HooksClassType {
     }
     
     beforeSendData?(params: SendType): boolean | Event | PromiseLike<Event> {
-        if (!this.options.beforSendData) return true
+        if (!this.options.beforeSendData) return true
 
         try {
-            return this.options.beforSendData(params)
+            return this.options.beforeSendData(params)
         } catch (e) {
             throw e
             return false

@@ -92,10 +92,7 @@ export class init {
             appkey
         })
 
-        let pass
-        async () => {
-            pass = await this.hooks.beforSendData()
-        }
+        const pass = this.hooks.beforeSendData()
         if (!pass) return false
 
         const query = obj2query(params)

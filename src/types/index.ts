@@ -34,7 +34,7 @@ export interface HooksTypes {
      *
      * 如果返回 false 时，将忽略本次上传
      */
-    beforeSendData?(event: SendType): PromiseLike<Event | null> | Event | CANCEL
+    beforeSendData?(params: SendType): boolean | Event | PromiseLike<Event> 
 
 }
   

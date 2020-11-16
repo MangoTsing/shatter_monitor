@@ -11,10 +11,21 @@
         <button id="ajaxButton" type="button">Make a request</button>
         <button id="sourceButton" type="button">Make a source</button>
         <button id="fetchButton" type="button">Make a fetch</button>
+        <button id="promiseButton" type="button">Make a promise error</button>
+        <button id="jsButton" type="button">Make a js error</button>
 <script>
 (function(){
+  document.getElementById('promiseButton').onclick = function (){
+    new Promise((reslove, reject) => {
+      reject('promiseError')
+    }).then(res => {
+      console.log(res)
+    })
+  }
+})();
+(function(){
         document.getElementById('sourceButton').onclick=function(){
-            document.getElementsByTagName('img')[0].src="https://xxx.com/1.png"
+            document.getElementsByTagName('img')[0].src="https://xxxsdffsda.com/1.png"
         }
     }
 )();
@@ -59,10 +70,15 @@
     const Shatter = new shatter.init({
         dsn: 'https://test.url.com',
         appkey: 'cube',
-        debug: false
+        debug: false,
+        beforeSendData: () => {
+          console.log('abcd')
+          return true
+        }
     });
     
 </script>
+<script src="http://localhost:8081/error.js"></script> 
 <script>
 </script>
 </html>
