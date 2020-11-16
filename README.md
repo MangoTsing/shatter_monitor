@@ -15,7 +15,11 @@ More features(like hooks) in development...
 const Shatter = new shatter.init({
     dsn: 'https://your.site.com',
     appkey: 'mangotsing',
-    debug: false
+    debug: false,
+    beforeSendData: () => {
+        console.log('test')
+        return true
+    }
 });
 </script>
 ```
