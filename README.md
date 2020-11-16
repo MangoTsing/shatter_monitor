@@ -4,7 +4,7 @@ A tiny tool for Browser Error Monitor.
 
 [release](https://github.com/MangoTsing/shatter_monitor/blob/master/build/index.min.js) Only `3.35Kb` in size.
 
-Specific options information may be viewed in [sendType.ts](https://github.com/MangoTsing/shatter_monitor/blob/master/src/types/sendType.ts)
+Specific options information may be viewed in [sendType.ts](https://github.com/MangoTsing/shatter_monitor/blob/master/src/types/index.ts)
 
 More features(like hooks) in development...
 
