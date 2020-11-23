@@ -87,7 +87,7 @@ var shatter = (function (exports) {
         };
         const oldError = window.onerror || null;
         window.onerror = (msg, url, line, col, error) => {
-            w.log({
+            w.report({
                 name: 'jserror', msg, url, line, col, type: ERRORTYPES['JAVASCRIPT_ERROR']
             });
             oldError && oldError(msg, url, line, col, error);
@@ -100,13 +100,13 @@ var shatter = (function (exports) {
             if (!isElementTarget)
                 return false;
             const url = target.src || target.href;
-            w.log({
+            w.report({
                 name: 'sourceError', url, type: ERRORTYPES['RESOURCE_ERROR']
             });
         }, true);
         window.addEventListener('unhandledrejection', event => {
             if (!event.reason || !event.reason.stack) {
-                w.log({
+                w.report({
                     name: 'unhandledrejection',
                     type: ERRORTYPES['PROMISE_ERROR']
                 });
@@ -118,7 +118,7 @@ var shatter = (function (exports) {
             const col = fileArr[fileArr.length - 1];
             const url = fileMsg.slice(0, -line.length - col.length - 2);
             const msg = event.reason.message;
-            w.log({
+            w.report({
                 name: 'unhandledrejection', msg, url, line, col, type: ERRORTYPES['PROMISE_ERROR']
             });
         }, true);
@@ -161,18 +161,21 @@ var shatter = (function (exports) {
         }
         window.navigator.sendBeacon(params.dsn, formData);
     }
-    class init {
+    class Shatter {
         constructor(options) {
             this.sendType = 'img';
             this.options = options;
-            this.hooks = new Hooks(options);
+            this._init();
+        }
+        _init() {
+            this.hooks = new Hooks(this.options);
             if (hasSendBeacon()) {
                 this.sendType = 'beacon';
             }
             BindEvent(this);
             catchXhr((event) => {
                 const target = event.currentTarget;
-                this.log({
+                this.report({
                     name: 'xhrError',
                     url: target.responseURL,
                     type: ERRORTYPES['FETCH_ERROR'],
@@ -183,7 +186,7 @@ var shatter = (function (exports) {
                 });
             });
             catchFetch((res) => {
-                this.log({
+                this.report({
                     name: 'fetchError',
                     url: res.url,
                     msg: res.statusText,
@@ -195,7 +198,7 @@ var shatter = (function (exports) {
                 });
             }, (error, args) => {
                 const httpType = args[0].substr(0, 5) === 'https' ? 'https' : 'other';
-                this.log({
+                this.report({
                     name: 'fetchError',
                     msg: error,
                     type: ERRORTYPES['FETCH_ERROR'],
@@ -208,7 +211,7 @@ var shatter = (function (exports) {
                 });
             });
         }
-        log(params) {
+        report(params) {
             const { dsn, appkey } = this.options;
             Object.assign(params, {
                 _t: new Date().getTime(),
@@ -233,7 +236,7 @@ var shatter = (function (exports) {
         }
     }
 
-    exports.init = init;
+    exports.Shatter = Shatter;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

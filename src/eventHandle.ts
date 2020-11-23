@@ -1,8 +1,7 @@
 /* eslint-disable prefer-rest-params */
 import { ERRORTYPES } from './common/errorType'
-
-export const BindEvent = function (w) {
-
+import { eventWarp } from './types/eventWarp'
+export const BindEvent = function (w: eventWarp) {
     
     /**
      * 监听全局 addEventListener 事件，针对跨域脚本的 Script error 问题
@@ -26,7 +25,7 @@ export const BindEvent = function (w) {
      */
     const oldError = window.onerror || null
     window.onerror = (msg:string, url, line, col, error) => {
-        w.log({
+        w.report({
             name: 'jserror', msg, url, line, col, type: ERRORTYPES['JAVASCRIPT_ERROR']
         })
         oldError && oldError(msg, url, line, col, error)
@@ -44,7 +43,7 @@ export const BindEvent = function (w) {
         if (!isElementTarget) return false
         // 上报资源地址
         const url = (<HTMLImageElement>target).src || (<HTMLLinkElement>target).href
-        w.log({
+        w.report({
             name: 'sourceError', url, type: ERRORTYPES['RESOURCE_ERROR']
         })
     }, true)
@@ -55,7 +54,7 @@ export const BindEvent = function (w) {
      */
     window.addEventListener('unhandledrejection', event => {
         if (!event.reason || !event.reason.stack) {
-            w.log({
+            w.report({
                 name: 'unhandledrejection',
                 type: ERRORTYPES['PROMISE_ERROR']
             })
@@ -67,7 +66,7 @@ export const BindEvent = function (w) {
         const col = fileArr[fileArr.length - 1]
         const url = fileMsg.slice(0, -line.length -col.length - 2)
         const msg = event.reason.message;
-        w.log({
+        w.report({
             name: 'unhandledrejection', msg, url, line, col, type: ERRORTYPES['PROMISE_ERROR']
         })
     }, true)

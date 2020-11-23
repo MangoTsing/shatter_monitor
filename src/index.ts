@@ -28,14 +28,18 @@ function sendBeacon(params, type='formData') {
     window.navigator.sendBeacon(params.dsn, formData)
 }
 
-export class init {
+export class Shatter {
     private options: InitOptions
     private sendType = 'img'
     private hooks
 
     constructor(options:InitOptions){
         this.options = options
-        this.hooks = new Hooks(options)
+        this._init()
+    }
+
+    _init() {
+        this.hooks = new Hooks(this.options)
 
         if (hasSendBeacon()) {
             this.sendType = 'beacon'
@@ -43,10 +47,9 @@ export class init {
 
         BindEvent(this)
 
-
         catchXhr((event: any) => {
             const target = event.currentTarget
-            this.log({
+            this.report({
                 name: 'xhrError',
                 url: target.responseURL,
                 type: ERRORTYPES['FETCH_ERROR'],
@@ -57,9 +60,8 @@ export class init {
             })
         })
 
-
         catchFetch((res: Response) => {
-            this.log({
+            this.report({
                 name: 'fetchError',
                 url: res.url,
                 msg: res.statusText,
@@ -71,7 +73,7 @@ export class init {
             })
         }, (error: string, args) => {
             const httpType = args[0].substr(0, 5) === 'https' ? 'https' : 'other'
-            this.log({
+            this.report({
                 name: 'fetchError',
                 msg: error,
                 type: ERRORTYPES['FETCH_ERROR'],
@@ -85,7 +87,7 @@ export class init {
         })
     }
 
-    log(params:SendType) {
+    report(params:SendType) {
         const { dsn, appkey } = this.options
         Object.assign(params, {
             _t: new Date().getTime(),
@@ -110,6 +112,5 @@ export class init {
         }
         
     }
-
 }
 
