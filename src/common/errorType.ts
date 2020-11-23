@@ -6,3 +6,12 @@ export enum ERRORTYPES {
     RESOURCE_ERROR = 'RESOURCE_ERROR',
     PROMISE_ERROR = 'PROMISE_ERROR'
 }
+
+export enum ERRORNAMETYPES {
+    jsError = 'JS_ERROR',
+    sourceError = 'SOURCE_ERROR',
+    promiseError = 'UNHANDLEDREJECTION',
+    consoleError = 'CONSOLE_ERROR',
+    ajaxError = 'AJAX_ERROR',
+    fetchError = 'FETCH_ERROR'
+}

@@ -1,4 +1,4 @@
-import { ERRORTYPES } from '../common/errorType'
+import { ERRORTYPES, ERRORNAMETYPES } from '../common/errorType'
 export interface SendType {
     [key: string]: string | number | unknown
     type?: ERRORTYPES
@@ -6,9 +6,9 @@ export interface SendType {
     url?: string
     line?: number
     col?: number
-    name?: string
+    name?: ERRORNAMETYPES
     stack?: unknown // 堆栈储存
-    time?: number // 发送请求时间
+    
     // fetch
     fetchTimeline?: number // fetch 请求时间线
     request?: {

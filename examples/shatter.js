@@ -14,6 +14,10 @@ var shatter = (function (exports) {
         }, '');
     }
 
+    function isError(param) {
+        return Object.prototype.toString.call(param).indexOf('Error') > -1;
+    }
+
     const catchXhr = function (sendFn) {
         if (!window.XMLHttpRequest)
             return;
@@ -71,57 +75,101 @@ var shatter = (function (exports) {
         ERRORTYPES["RESOURCE_ERROR"] = "RESOURCE_ERROR";
         ERRORTYPES["PROMISE_ERROR"] = "PROMISE_ERROR";
     })(ERRORTYPES || (ERRORTYPES = {}));
+    var ERRORNAMETYPES;
+    (function (ERRORNAMETYPES) {
+        ERRORNAMETYPES["jsError"] = "JS_ERROR";
+        ERRORNAMETYPES["sourceError"] = "SOURCE_ERROR";
+        ERRORNAMETYPES["promiseError"] = "UNHANDLEDREJECTION";
+        ERRORNAMETYPES["consoleError"] = "CONSOLE_ERROR";
+        ERRORNAMETYPES["ajaxError"] = "AJAX_ERROR";
+        ERRORNAMETYPES["fetchError"] = "FETCH_ERROR";
+    })(ERRORNAMETYPES || (ERRORNAMETYPES = {}));
 
-    const BindEvent = function (w) {
-        const originAddEventListener = EventTarget.prototype.addEventListener;
-        EventTarget.prototype.addEventListener = function (type, listener, options) {
-            const wrappedListener = function () {
-                try {
-                    return listener.apply(this, arguments);
-                }
-                catch (err) {
-                    throw err;
-                }
+    const BindStaticEvent = function (w, options) {
+        if (!options.blockTry) {
+            const originAddEventListener = EventTarget.prototype.addEventListener;
+            EventTarget.prototype.addEventListener = function (type, listener, options) {
+                const wrappedListener = function () {
+                    try {
+                        return listener.apply(this, arguments);
+                    }
+                    catch (err) {
+                        throw err;
+                    }
+                };
+                return originAddEventListener.call(this, type, wrappedListener, options);
             };
-            return originAddEventListener.call(this, type, wrappedListener, options);
-        };
-        const oldError = window.onerror || null;
-        window.onerror = (msg, url, line, col, error) => {
-            w.report({
-                name: 'jserror', msg, url, line, col, type: ERRORTYPES['JAVASCRIPT_ERROR']
-            });
-            oldError && oldError(msg, url, line, col, error);
-        };
-        window.addEventListener('error', event => {
-            if (!event)
-                return;
-            const target = event.target || event.srcElement;
-            const isElementTarget = target instanceof HTMLScriptElement || target instanceof HTMLLinkElement || target instanceof HTMLImageElement;
-            if (!isElementTarget)
-                return false;
-            const url = target.src || target.href;
-            w.report({
-                name: 'sourceError', url, type: ERRORTYPES['RESOURCE_ERROR']
-            });
-        }, true);
-        window.addEventListener('unhandledrejection', event => {
-            if (!event.reason || !event.reason.stack) {
+        }
+        if (!options.blockError) {
+            const oldError = window.onerror || null;
+            window.onerror = (msg, url, line, col, error) => {
                 w.report({
-                    name: 'unhandledrejection',
-                    type: ERRORTYPES['PROMISE_ERROR']
+                    name: ERRORNAMETYPES['jsError'], msg, url, line, col, type: ERRORTYPES['JAVASCRIPT_ERROR']
                 });
-                return;
-            }
-            const fileMsg = event.reason.stack.split('\n')[1].split('at ')[1];
-            const fileArr = fileMsg.split(':');
-            const line = fileArr[fileArr.length - 2];
-            const col = fileArr[fileArr.length - 1];
-            const url = fileMsg.slice(0, -line.length - col.length - 2);
-            const msg = event.reason.message;
-            w.report({
-                name: 'unhandledrejection', msg, url, line, col, type: ERRORTYPES['PROMISE_ERROR']
-            });
-        }, true);
+                oldError && oldError(msg, url, line, col, error);
+            };
+        }
+        if (!options.blockSource) {
+            window.addEventListener('error', event => {
+                if (!event)
+                    return;
+                const target = event.target || event.srcElement;
+                const isElementTarget = target instanceof HTMLScriptElement || target instanceof HTMLLinkElement || target instanceof HTMLImageElement;
+                if (!isElementTarget)
+                    return false;
+                const url = target.src || target.href;
+                w.report({
+                    name: ERRORNAMETYPES['sourceError'], url, type: ERRORTYPES['RESOURCE_ERROR']
+                });
+            }, true);
+        }
+        if (!options.blockPromise) {
+            window.addEventListener('unhandledrejection', event => {
+                if (!event.reason || !event.reason.stack) {
+                    w.report({
+                        name: ERRORNAMETYPES['promiseError'],
+                        type: ERRORTYPES['PROMISE_ERROR']
+                    });
+                    return;
+                }
+                const fileMsg = event.reason.stack.split('\n')[1].split('at ')[1];
+                const fileArr = fileMsg.split(':');
+                const line = fileArr[fileArr.length - 2];
+                const col = fileArr[fileArr.length - 1];
+                const url = fileMsg.slice(0, -line.length - col.length - 2);
+                const msg = event.reason.message;
+                w.report({
+                    name: ERRORNAMETYPES['promiseError'], msg, url, line, col, type: ERRORTYPES['PROMISE_ERROR']
+                });
+            }, true);
+        }
+        if (!options.blockConsole) {
+            const originConsoleError = window.console.error;
+            window.console.error = (func => {
+                return (...args) => {
+                    args.forEach(item => {
+                        if (isError(item)) {
+                            const fileMsg = item.stack.split('\n')[1].split('at ')[1];
+                            const fileArr = fileMsg.split(':');
+                            const line = fileArr[fileArr.length - 2];
+                            const col = fileArr[fileArr.length - 2];
+                            const url = fileMsg.split('(')[1].slice(0, -line.length - col.length - 2);
+                            w.report({
+                                name: ERRORNAMETYPES['consoleError'], msg: item.stack, url, line, col, type: ERRORTYPES['LOG_ERROR']
+                            });
+                        }
+                        else {
+                            w.report({
+                                name: ERRORNAMETYPES['consoleError'],
+                                msg: item,
+                                type: ERRORTYPES['LOG_ERROR']
+                            });
+                        }
+                    });
+                    func.apply(console, args);
+                };
+            })(originConsoleError);
+        }
     };
 
     class Hooks {
@@ -140,6 +188,11 @@ var shatter = (function (exports) {
         }
     }
 
+    var logMethods;
+    (function (logMethods) {
+        logMethods["img"] = "img";
+        logMethods["beacon"] = "beacon";
+    })(logMethods || (logMethods = {}));
     function hasSendBeacon() {
         return window.navigator && !!window.navigator.sendBeacon;
     }
@@ -163,53 +216,69 @@ var shatter = (function (exports) {
     }
     class Shatter {
         constructor(options) {
-            this.sendType = 'img';
+            this.sendType = "img";
             this.options = options;
             this._init();
         }
         _init() {
-            this.hooks = new Hooks(this.options);
-            if (hasSendBeacon()) {
-                this.sendType = 'beacon';
+            const op = this.options;
+            const { blockConsole, blockPromise, blockError, blockSource, blockXhr, blockFetch, blockTry, blockHttpRequest, onlyHttpRequest } = op;
+            this.hooks = new Hooks(op);
+            if (hasSendBeacon() && !op.onlyImg) {
+                this.sendType = "beacon";
             }
-            BindEvent(this);
-            catchXhr((event) => {
-                const target = event.currentTarget;
-                this.report({
-                    name: 'xhrError',
-                    url: target.responseURL,
-                    type: ERRORTYPES['FETCH_ERROR'],
-                    response: {
-                        status: target.status,
-                        data: target.statusText
-                    }
+            if (!onlyHttpRequest) {
+                BindStaticEvent(this, {
+                    blockConsole,
+                    blockPromise,
+                    blockError,
+                    blockSource,
+                    blockTry
                 });
-            });
-            catchFetch((res) => {
-                this.report({
-                    name: 'fetchError',
-                    url: res.url,
-                    msg: res.statusText,
-                    type: ERRORTYPES['FETCH_ERROR'],
-                    response: {
-                        status: res.status,
-                        data: res.statusText
-                    }
-                });
-            }, (error, args) => {
-                const httpType = args[0].substr(0, 5) === 'https' ? 'https' : 'other';
-                this.report({
-                    name: 'fetchError',
-                    msg: error,
-                    type: ERRORTYPES['FETCH_ERROR'],
-                    request: {
-                        httpType: httpType,
-                        data: args[1].body,
-                        method: args[1].method,
-                        url: args[0]
-                    }
-                });
-            });
+            }
+            if (!blockHttpRequest) {
+                if (!blockXhr) {
+                    catchXhr((event) => {
+                        const target = event.currentTarget;
+                        this.report({
+                            name: ERRORNAMETYPES['ajaxError'],
+                            url: target.responseURL,
+                            type: ERRORTYPES['FETCH_ERROR'],
+                            response: {
+                                status: target.status,
+                                data: target.statusText
+                            }
+                        });
+                    });
+                }
+                if (!blockFetch) {
+                    catchFetch((res) => {
+                        this.report({
+                            name: ERRORNAMETYPES['fetchError'],
+                            url: res.url,
+                            msg: res.statusText,
+                            type: ERRORTYPES['FETCH_ERROR'],
+                            response: {
+                                status: res.status,
+                                data: res.statusText
+                            }
+                        });
+                    }, (error, args) => {
+                        const httpType = args[0].substr(0, 5) === 'https' ? 'https' : 'other';
+                        this.report({
+                            name: ERRORNAMETYPES['fetchError'],
+                            msg: error,
+                            type: ERRORTYPES['FETCH_ERROR'],
+                            request: {
+                                httpType: httpType,
+                                data: args[1].body,
+                                method: args[1].method,
+                                url: args[0]
+                            }
+                        });
+                    });
+                }
+            }
         }
         report(params) {
             const { dsn, appkey } = this.options;
@@ -217,7 +286,7 @@ var shatter = (function (exports) {
                 _t: new Date().getTime(),
                 appkey
             });
-            const pass = this.hooks.beforeSendData();
+            const pass = this.hooks.beforeSendData(params);
             if (!pass)
                 return false;
             const query = obj2query(params);

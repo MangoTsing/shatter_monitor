@@ -2,13 +2,13 @@
 
 A tiny tool for Browser Error Monitor.
 
-[release](https://github.com/MangoTsing/shatter_monitor/blob/master/build/index.min.js) Only `3.35Kb` in size.
+[release](https://github.com/MangoTsing/shatter_monitor/blob/master/build/index.min.js) Only `4.4Kb` in size.
 
-Specific options information may be viewed in [sendType.ts](https://github.com/MangoTsing/shatter_monitor/blob/master/src/types/index.ts)
+Specific options information may be viewed in [index.ts file](https://github.com/MangoTsing/shatter_monitor/blob/master/src/types/index.ts)
 
 More features(like hooks) in development...
 
-## Usege
+## Usage
 
 ```
 <script>
@@ -19,7 +19,8 @@ const Shatter = new shatter.init({
     beforeSendData: () => {
         console.log('test')
         return true
-    }
+    },
+    blockConsole: true
 });
 </script>
 ```
@@ -36,6 +37,11 @@ yarn
 
 yarn watch
 
+cd examples && http-server // 8080
+
+// new terminal
+
+cd examples && http-server // 8081
 
 ```
 

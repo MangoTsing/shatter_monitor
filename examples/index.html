@@ -13,7 +13,13 @@
         <button id="fetchButton" type="button">Make a fetch</button>
         <button id="promiseButton" type="button">Make a promise error</button>
         <button id="jsButton" type="button">Make a js error</button>
+        <button id="consoleButton" type="button">Make a console.error</button>
 <script>
+(function(){
+  document.getElementById('consoleButton').onclick = function (){
+    console.error(new Error('im console.error'))
+  }
+})();
 (function(){
   document.getElementById('promiseButton').onclick = function (){
     new Promise((reslove, reject) => {
@@ -72,12 +78,12 @@
         dsn: 'https://test.url.com',
         appkey: 'cube',
         debug: false,
-        beforeSendData: () => {
-          console.log('abcd')
+        beforeSendData: (params) => {
+          console.log('beforeSendData',params)
           return true
         }
     });
-    console.log(singleShatter.init, shatter)
+    // console.log(singleShatter)
     
 </script>
 <script src="http://localhost:8081/error.js"></script> 
