@@ -130,7 +130,7 @@ var shatter = (function (exports) {
                     w.report({
                         name: ERRORNAMETYPES['promiseError'],
                         type: ERRORTYPES['PROMISE_ERROR'],
-                        msg: (event.reason && event.reason.stack) || ''
+                        msg: (event.reason && event.reason.stack) || event.reason || ''
                     });
                     return;
                 }

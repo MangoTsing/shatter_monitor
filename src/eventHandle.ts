@@ -66,7 +66,7 @@ export const BindStaticEvent = function (w: eventWarp, options: BlockEventSingle
                 w.report({
                     name: ERRORNAMETYPES['promiseError'],
                     type: ERRORTYPES['PROMISE_ERROR'],
-                    msg: (event.reason && event.reason.stack) || ''
+                    msg: (event.reason && event.reason.stack) || event.reason || ''
                 })
                 return
             }
