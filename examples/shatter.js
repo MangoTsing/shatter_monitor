@@ -23,23 +23,29 @@ var shatter = (function (exports) {
             return;
         const xmlhttp = window.XMLHttpRequest;
         const _oldSend = xmlhttp.prototype.send;
-        const _handleEvent = function (event, args) {
+        const _oldOpen = xmlhttp.prototype.open;
+        const _handleEvent = function (event, args, openArgs) {
             if (event && event.currentTarget && event.currentTarget.status !== 200) {
-                sendFn && sendFn(event, args);
+                sendFn && sendFn(event, args, openArgs);
             }
+        };
+        xmlhttp.prototype.open = function () {
+            const args = arguments;
+            this._openArgs = args;
+            return _oldOpen.apply(this, args);
         };
         xmlhttp.prototype.send = function () {
             const args = arguments;
             if (this['addEventListener']) {
-                this['addEventListener']('error', _handleEvent);
-                this['addEventListener']('load', _handleEvent);
-                this['addEventListener']('abort', _handleEvent);
+                this['addEventListener']('error', function (e) { _handleEvent(e, args, this._openArgs); });
+                this['addEventListener']('load', function (e) { _handleEvent(e, args, this._openArgs); });
+                this['addEventListener']('abort', function (e) { _handleEvent(e, args, this._openArgs); });
             }
             else {
                 const _oldStateChange = this['onreadystatechange'];
                 this['onreadystatechange'] = function (event) {
                     if (this.readyState === 4) {
-                        _handleEvent(event, args);
+                        _handleEvent(event, args, this._openArgs);
                     }
                     _oldStateChange && _oldStateChange.apply(this, args);
                 };
@@ -250,13 +256,18 @@ var shatter = (function (exports) {
             }
             if (!blockHttpRequest) {
                 if (!blockXhr) {
-                    catchXhr((event, args) => {
-                        console.log(args);
+                    catchXhr((event, args, openArgs) => {
                         const target = event.currentTarget;
+                        const url = target.responseURL;
                         this.report({
                             name: ERRORNAMETYPES['ajaxError'],
-                            url: target.responseURL,
+                            url: url,
                             type: ERRORTYPES['FETCH_ERROR'],
+                            request: {
+                                method: openArgs[0],
+                                httpType: getHttpType(url),
+                                data: (args && args[0]) || ''
+                            },
                             response: {
                                 status: target.status,
                                 data: target.statusText

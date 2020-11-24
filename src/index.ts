@@ -73,13 +73,18 @@ export class Shatter {
 
         if (!blockHttpRequest) {
             if (!blockXhr) {
-                catchXhr((event: any, args: IArguments) => {
-                    console.log(args)
+                catchXhr((event: any, args: IArguments, openArgs: IArguments) => {
                     const target = event.currentTarget
+                    const url = target.responseURL
                     this.report({
                         name: ERRORNAMETYPES['ajaxError'],
-                        url: target.responseURL,
+                        url: url,
                         type: ERRORTYPES['FETCH_ERROR'],
+                        request: {
+                            method: openArgs[0],
+                            httpType: getHttpType(url),
+                            data: (args && args[0]) || ''
+                        },
                         response: {
                             status: target.status,
                             data: target.statusText

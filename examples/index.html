@@ -55,8 +55,8 @@
       return false;
     }
     httpRequest.onreadystatechange = alertContents;
-    httpRequest.open('GET', 'test.html');
-    httpRequest.send();
+    httpRequest.open('POST', 'test.html');
+    httpRequest.send(JSON.stringify({"a": "test"}));
   }
 
   function alertContents() {
