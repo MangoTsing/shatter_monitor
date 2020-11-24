@@ -1,6 +1,8 @@
+import { SendType } from "./sendType";
+
 export interface eventWarp {
     /**
      * 上报函数
      */
-    report: Function
+    report: (params: SendType) => void
 }

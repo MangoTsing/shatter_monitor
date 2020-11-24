@@ -14,8 +14,7 @@ export interface SendType {
     request?: {
       httpType?: string
       method: string
-      url: string
-      data: unknown
+      data?: unknown
     }
     response?: {
       status: number

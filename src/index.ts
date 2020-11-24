@@ -3,16 +3,25 @@ import { obj2query } from 'utils'
 import { catchXhr, catchFetch } from './catchRequest'
 import { SendType } from './types/sendType'
 import { ERRORTYPES, ERRORNAMETYPES } from './common/errorType'
+import { logMethods } from './common/logMethods'
 import { BindStaticEvent } from './eventHandle'
 import Hooks from './hooks'
 
-const enum logMethods {
-    img = 'img',
-    beacon = 'beacon'
-}
-
 function hasSendBeacon() {
     return window.navigator && !!window.navigator.sendBeacon
+}
+
+function getHttpType(url) {
+    const first = url.substr && url.substr(0, 5)
+    if (!first) {
+        return 'unknown'
+    } else if (first === 'https') {
+        return 'https'
+    } else if (first === 'http:') {
+        return 'http'
+    } else {
+        return 'other'
+    }
 }
 
 function sendImgLog(url) {
@@ -35,10 +44,10 @@ function sendBeacon(params, type='formData') {
 
 export class Shatter {
     private options: InitOptions
-    private sendType = logMethods['img']
+    private sendType: logMethods = logMethods['img']
     private hooks
 
-    constructor(options:InitOptions){
+    constructor(options: InitOptions){
         this.options = options
         this._init()
     }
@@ -64,7 +73,8 @@ export class Shatter {
 
         if (!blockHttpRequest) {
             if (!blockXhr) {
-                catchXhr((event: any) => {
+                catchXhr((event: any, args: IArguments) => {
+                    console.log(args)
                     const target = event.currentTarget
                     this.report({
                         name: ERRORNAMETYPES['ajaxError'],
@@ -79,28 +89,36 @@ export class Shatter {
             }
 
             if (!blockFetch) {
-                catchFetch((res: Response) => {
-                    this.report({
-                        name: ERRORNAMETYPES['fetchError'],
-                        url: res.url,
-                        msg: res.statusText,
-                        type: ERRORTYPES['FETCH_ERROR'],
-                        response: {
-                            status: res.status,
-                            data: res.statusText
-                        }
+                catchFetch((res: Response, args: IArguments) => {
+                    res.text().then(text => {
+                        const url = res.url || args[0]
+                        this.report({
+                            name: ERRORNAMETYPES['fetchError'],
+                            url: url,
+                            msg: res.statusText,
+                            type: ERRORTYPES['FETCH_ERROR'],
+                            request: {
+                                httpType: getHttpType(url),
+                                method: args[1].method,
+                                data: args[1].body || ''
+                            },
+                            response: {
+                                status: res.status,
+                                data: text || res.statusText
+                            }
+                        })
                     })
                 }, (error: string, args) => {
-                    const httpType = args[0].substr(0, 5) === 'https' ? 'https' : 'other'
+                    const httpType = getHttpType(args[0])
                     this.report({
                         name: ERRORNAMETYPES['fetchError'],
                         msg: error,
+                        url: args[0],
                         type: ERRORTYPES['FETCH_ERROR'],
                         request: {
                             httpType: httpType,
                             data: args[1].body,
-                            method: args[1].method,
-                            url: args[0]
+                            method: args[1].method
                         }
                     })
                 })

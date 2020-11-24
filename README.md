@@ -20,6 +20,7 @@ const Shatter = new shatter.init({
         console.log('test')
         return true
     },
+    onlyImg: true,
     blockConsole: true
 });
 </script>

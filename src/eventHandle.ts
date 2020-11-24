@@ -62,10 +62,11 @@ export const BindStaticEvent = function (w: eventWarp, options: BlockEventSingle
      */
     if (!options.blockPromise) {
         window.addEventListener('unhandledrejection', event => {
-            if (!event.reason || !event.reason.stack) {
+            if (!event.reason || !event.reason.stack || !event.reason.stack.includes('\n')) {
                 w.report({
                     name: ERRORNAMETYPES['promiseError'],
-                    type: ERRORTYPES['PROMISE_ERROR']
+                    type: ERRORTYPES['PROMISE_ERROR'],
+                    msg: (event.reason && event.reason.stack) || ''
                 })
                 return
             }

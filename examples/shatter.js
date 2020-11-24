@@ -23,12 +23,13 @@ var shatter = (function (exports) {
             return;
         const xmlhttp = window.XMLHttpRequest;
         const _oldSend = xmlhttp.prototype.send;
-        const _handleEvent = function (event) {
+        const _handleEvent = function (event, args) {
             if (event && event.currentTarget && event.currentTarget.status !== 200) {
-                sendFn && sendFn(event);
+                sendFn && sendFn(event, args);
             }
         };
         xmlhttp.prototype.send = function () {
+            const args = arguments;
             if (this['addEventListener']) {
                 this['addEventListener']('error', _handleEvent);
                 this['addEventListener']('load', _handleEvent);
@@ -38,12 +39,12 @@ var shatter = (function (exports) {
                 const _oldStateChange = this['onreadystatechange'];
                 this['onreadystatechange'] = function (event) {
                     if (this.readyState === 4) {
-                        _handleEvent(event);
+                        _handleEvent(event, args);
                     }
-                    _oldStateChange && _oldStateChange.apply(this, arguments);
+                    _oldStateChange && _oldStateChange.apply(this, args);
                 };
             }
-            return _oldSend.apply(this, arguments);
+            return _oldSend.apply(this, args);
         };
     };
     const catchFetch = function (sendFn, errorFn) {
@@ -52,10 +53,10 @@ var shatter = (function (exports) {
         const _oldFetch = window.fetch;
         window.fetch = function () {
             const args = arguments;
-            return _oldFetch.apply(this, arguments)
+            return _oldFetch.apply(this, args)
                 .then((res) => {
                 if (!res.ok) {
-                    sendFn && sendFn(res);
+                    sendFn && sendFn(res, args);
                 }
                 return res;
             })
@@ -125,10 +126,11 @@ var shatter = (function (exports) {
         }
         if (!options.blockPromise) {
             window.addEventListener('unhandledrejection', event => {
-                if (!event.reason || !event.reason.stack) {
+                if (!event.reason || !event.reason.stack || !event.reason.stack.includes('\n')) {
                     w.report({
                         name: ERRORNAMETYPES['promiseError'],
-                        type: ERRORTYPES['PROMISE_ERROR']
+                        type: ERRORTYPES['PROMISE_ERROR'],
+                        msg: (event.reason && event.reason.stack) || ''
                     });
                     return;
                 }
@@ -188,13 +190,23 @@ var shatter = (function (exports) {
         }
     }
 
-    var logMethods;
-    (function (logMethods) {
-        logMethods["img"] = "img";
-        logMethods["beacon"] = "beacon";
-    })(logMethods || (logMethods = {}));
     function hasSendBeacon() {
         return window.navigator && !!window.navigator.sendBeacon;
+    }
+    function getHttpType(url) {
+        const first = url.substr && url.substr(0, 5);
+        if (!first) {
+            return 'unknown';
+        }
+        else if (first === 'https') {
+            return 'https';
+        }
+        else if (first === 'http:') {
+            return 'http';
+        }
+        else {
+            return 'other';
+        }
     }
     function sendImgLog(url) {
         new Image().src = url;
@@ -238,7 +250,8 @@ var shatter = (function (exports) {
             }
             if (!blockHttpRequest) {
                 if (!blockXhr) {
-                    catchXhr((event) => {
+                    catchXhr((event, args) => {
+                        console.log(args);
                         const target = event.currentTarget;
                         this.report({
                             name: ERRORNAMETYPES['ajaxError'],
@@ -252,28 +265,36 @@ var shatter = (function (exports) {
                     });
                 }
                 if (!blockFetch) {
-                    catchFetch((res) => {
-                        this.report({
-                            name: ERRORNAMETYPES['fetchError'],
-                            url: res.url,
-                            msg: res.statusText,
-                            type: ERRORTYPES['FETCH_ERROR'],
-                            response: {
-                                status: res.status,
-                                data: res.statusText
-                            }
+                    catchFetch((res, args) => {
+                        res.text().then(text => {
+                            const url = res.url || args[0];
+                            this.report({
+                                name: ERRORNAMETYPES['fetchError'],
+                                url: url,
+                                msg: res.statusText,
+                                type: ERRORTYPES['FETCH_ERROR'],
+                                request: {
+                                    httpType: getHttpType(url),
+                                    method: args[1].method,
+                                    data: args[1].body || ''
+                                },
+                                response: {
+                                    status: res.status,
+                                    data: text || res.statusText
+                                }
+                            });
                         });
                     }, (error, args) => {
-                        const httpType = args[0].substr(0, 5) === 'https' ? 'https' : 'other';
+                        const httpType = getHttpType(args[0]);
                         this.report({
                             name: ERRORNAMETYPES['fetchError'],
                             msg: error,
+                            url: args[0],
                             type: ERRORTYPES['FETCH_ERROR'],
                             request: {
                                 httpType: httpType,
                                 data: args[1].body,
-                                method: args[1].method,
-                                url: args[0]
+                                method: args[1].method
                             }
                         });
                     });
