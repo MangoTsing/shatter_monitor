@@ -1,6 +1,6 @@
 <h1 align="center">shatter_monitor</h1>
 
-A tiny tool for Site Error & Performance Monitor.
+A tiny tool for Site **Error & Performance & User Behavior** Monitor.
 
 It is a shatter monitor tool, but it can be combined to form a complete tool.
 
@@ -17,12 +17,14 @@ More features(like hooks) in development...
 - Add user behavior stack
 - Support vue 2.x & 3.x
 - Support Performance Monitor (a part of shatter_monitor)
+- Support Behavior Monitor (a part of shatter_monitor)
 
 ## Usage
 
 ```
 <script>
-const Shatter = new shatter.init({
+const { ShatterInit } = shatter
+const Shatter = new ShatterInit({
     dsn: 'https://your.site.com',
     appkey: 'mangotsing',
     debug: false,
@@ -30,6 +32,7 @@ const Shatter = new shatter.init({
         console.log('test')
         return true
     },
+    usage: 'all', // or ['ErrorForShatter', 'PerformanceForShatter', 'BehaviorForShatter']
     onlyImg: true,
     blockConsole: true
 });

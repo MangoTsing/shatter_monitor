@@ -14,6 +14,9 @@ var shatter = (function (exports) {
         }, '');
     }
 
+    function isString(param) {
+        return typeof param === 'string';
+    }
     function isError(param) {
         return Object.prototype.toString.call(param).indexOf('Error') > -1;
     }
@@ -232,7 +235,7 @@ var shatter = (function (exports) {
         }
         window.navigator.sendBeacon(params.dsn, formData);
     }
-    class Shatter {
+    class ErrorForShatter {
         constructor(options) {
             this.sendType = "img";
             this.options = options;
@@ -337,7 +340,57 @@ var shatter = (function (exports) {
         }
     }
 
-    exports.Shatter = Shatter;
+    class PerformanceForShatter {
+        constructor() {
+            console.log('performance');
+        }
+        init() {
+            console.log('performance init');
+        }
+    }
+
+    class BehaviorForShatter {
+        constructor() {
+            console.log('behavior');
+        }
+        init() {
+            console.log('behavior init');
+        }
+    }
+
+    class ShatterInit {
+        constructor(options) {
+            const { usage } = options;
+            const defaultShatter = 'ErrorForShatter';
+            const staticShatterSupport = ShatterInit.shatterSupport;
+            const shatterArray = [];
+            if (usage === 'all') {
+                shatterArray.push(...Object.keys(staticShatterSupport));
+            }
+            else if (Array.isArray(usage)) {
+                shatterArray.push(...usage);
+            }
+            else if (isString(usage)) {
+                shatterArray.push(usage);
+            }
+            else {
+                shatterArray.push(defaultShatter);
+            }
+            shatterArray.forEach((item) => {
+                new staticShatterSupport[item](options);
+            });
+        }
+    }
+    ShatterInit.shatterSupport = {
+        ErrorForShatter,
+        PerformanceForShatter,
+        BehaviorForShatter
+    };
+
+    exports.BehaviorForShatter = BehaviorForShatter;
+    exports.ErrorForShatter = ErrorForShatter;
+    exports.PerformanceForShatter = PerformanceForShatter;
+    exports.ShatterInit = ShatterInit;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -1,8 +1,8 @@
 /* eslint-disable prefer-rest-params */
-import { BlockEventSingleTypes } from 'types/index'
-import { ERRORTYPES, ERRORNAMETYPES } from './common/errorType'
-import { eventWarp } from './types/eventWarp'
-import { isError } from './utils/typeCheck'
+import { BlockEventSingleTypes } from '../types/index'
+import { ERRORTYPES, ERRORNAMETYPES } from '../common/errorType'
+import { eventWarp } from '../types/eventWarp'
+import { isError } from 'utils/typeCheck'
 export const BindStaticEvent = function (w: eventWarp, options: BlockEventSingleTypes) {
 
     /**

@@ -73,15 +73,16 @@
 </body>
 <script src="./shatter.js"></script>
 <script>
-    const { Shatter } = shatter
-    const singleShatter = new Shatter({
+    const { ShatterInit } = shatter
+    const singleShatter = new ShatterInit({
         dsn: 'https://test.url.com',
         appkey: 'cube',
         debug: false,
         beforeSendData: (params) => {
           console.log('beforeSendData',params)
           return true
-        }
+        },
+        usage: 'PerformanceForShatter'
     });
     
 </script>

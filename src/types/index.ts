@@ -31,7 +31,14 @@ export interface InitOptions extends BlockEventTypes, HooksTypes {
     /**
      * 默认20，最大100
      */
-    maxBreadcrumbs?: number
+    //maxBreadcrumbs?: number
+    
+
+    /**
+     * 使用的 shatter monitor
+     */
+    usage?: string | string[]
+    
 }
   
 export interface HooksTypes {
