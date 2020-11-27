@@ -147,7 +147,7 @@ var shatter = (function (exports) {
                 const fileArr = fileMsg.split(':');
                 const line = fileArr[fileArr.length - 2];
                 const col = fileArr[fileArr.length - 1];
-                const url = fileMsg.slice(0, -line.length - col.length - 2);
+                const url = fileMsg && fileMsg.slice(0, -line.length - col.length - 2);
                 const msg = event.reason.message;
                 w.report({
                     name: ERRORNAMETYPES['promiseError'], msg, url, line, col, type: ERRORTYPES['PROMISE_ERROR']
@@ -164,7 +164,7 @@ var shatter = (function (exports) {
                             const fileArr = fileMsg.split(':');
                             const line = fileArr[fileArr.length - 2];
                             const col = fileArr[fileArr.length - 2];
-                            const url = (fileMsg.split('(') && fileMsg.split('(')[1].slice(0, -line.length - col.length - 2)) || 'anonymous function';
+                            const url = (fileMsg.split('(')[1] && fileMsg.split('(')[1].slice(0, -line.length - col.length - 2)) || 'anonymous function';
                             w.report({
                                 name: ERRORNAMETYPES['consoleError'], msg: item.stack, url, line, col, type: ERRORTYPES['LOG_ERROR']
                             });
