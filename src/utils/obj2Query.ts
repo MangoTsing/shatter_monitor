@@ -2,7 +2,7 @@
  * 用&分割对象，返回a=1&b=2
  * @param obj 需要拼接的对象
  */
-export function obj2query(obj: Record<string, unknown>): string {
+export function obj2query(obj: Record<string, any>): string {
     return Object.entries(obj).reduce((result, [key, value], index) => {
       if (typeof value === 'object') {
         value = JSON.stringify(value)
@@ -10,7 +10,7 @@ export function obj2query(obj: Record<string, unknown>): string {
       if (index !== 0) {
         result += '&'
       }
-      result += `${key}=${value}`
+      result += `${key}=${encodeURIComponent(value)}`
       return result
     }, '')
 }

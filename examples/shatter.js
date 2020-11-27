@@ -9,7 +9,7 @@ var shatter = (function (exports) {
             if (index !== 0) {
                 result += '&';
             }
-            result += `${key}=${value}`;
+            result += `${key}=${encodeURIComponent(value)}`;
             return result;
         }, '');
     }
