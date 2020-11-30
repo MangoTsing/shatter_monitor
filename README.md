@@ -15,11 +15,13 @@ More features(like hooks) in development...
 - Add more hooks
 - Typescript type for function
 - Add user behavior stack
-- Support vue ~~2.x~~(finish) && 3.x
+- Support vue 3.x
 - Support Performance Monitor (a part of shatter_monitor)
 - Support Behavior Monitor (a part of shatter_monitor)
 
 ## Usage
+
+### CDN
 
 ```
 <script>
@@ -37,6 +39,31 @@ const Shatter = new ShatterInit({
     blockConsole: true
 });
 </script>
+```
+
+### Vue 2.x
+
+```
+//terminal
+npm install --save shatter_monitor
+
+// main.js
+import { ShatterErrorVue } from 'shatter_monitor'
+
+Vue.use(ShatterErrorVue, {
+    dsn: 'https://your.site.com',
+    appkey: 'mangotsing',
+    debug: false,
+    beforeSendData: () => {
+        console.log('test')
+        return true
+    },
+    usage: 'all', // or ['ErrorForShatter', 'PerformanceForShatter', 'BehaviorForShatter']
+    onlyImg: true,
+    blockConsole: true
+})
+
+
 ```
 
 If your browser support `navigator.sendBeacon` function, will use it.
