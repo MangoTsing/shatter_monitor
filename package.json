@@ -1,5 +1,5 @@
 {
-  "name": "shatter",
+  "name": "shatter_monitor",
   "version": "1.0.0",
   "description": "A SDK for monitoring browser errors",
   "main": "dist/index.js",
@@ -30,7 +30,6 @@
     "@typescript-eslint/eslint-plugin": "^3.6.1",
     "@typescript-eslint/parser": "^3.6.1",
     "cross-env": "^7.0.2",
-    "eslint": "^7.4.0",
     "eslint-plugin-html": "^6.0.2",
     "prettier": "^2.0.5",
     "rollup": "^2.21.0",
@@ -39,5 +38,19 @@
     "rollup-plugin-typescript2": "^0.27.1",
     "tsconfig-paths": "^3.9.0",
     "typescript": "^3.9.3"
-  }
+  },
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "eslint": "^7.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MangoTsing/shatter_monitor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MangoTsing/shatter_monitor/issues"
+  },
+  "homepage": "https://github.com/MangoTsing/shatter_monitor#readme"
 }

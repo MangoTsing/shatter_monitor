@@ -4,7 +4,8 @@ export enum ERRORTYPES {
     LOG_ERROR = 'LOG_ERROR',
     FETCH_ERROR = 'HTTP_ERROR',
     RESOURCE_ERROR = 'RESOURCE_ERROR',
-    PROMISE_ERROR = 'PROMISE_ERROR'
+    PROMISE_ERROR = 'PROMISE_ERROR',
+    VUE_ERROR = 'VUE_ERROR'
 }
 
 export enum ERRORNAMETYPES {
@@ -13,5 +14,6 @@ export enum ERRORNAMETYPES {
     promiseError = 'UNHANDLEDREJECTION',
     consoleError = 'CONSOLE_ERROR',
     ajaxError = 'AJAX_ERROR',
-    fetchError = 'FETCH_ERROR'
+    fetchError = 'FETCH_ERROR',
+    VueError = 'VueError'
 }

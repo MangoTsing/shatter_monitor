@@ -3,6 +3,7 @@ import { PerformanceForShatter } from './shatter_performance/index'
 import { BehaviorForShatter } from './shatter_behavior/index'
 import { InitOptions } from './types/index'
 import { isString } from 'utils'
+import { ShatterErrorVue } from './shatter_error/vue/index'
 class ShatterInit {
 
     static shatterSupport = {
@@ -34,4 +35,4 @@ class ShatterInit {
     
 }
 
-export { ErrorForShatter, PerformanceForShatter, BehaviorForShatter, ShatterInit }
+export { ErrorForShatter, PerformanceForShatter, BehaviorForShatter, ShatterInit, ShatterErrorVue }

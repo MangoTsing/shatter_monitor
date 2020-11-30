@@ -1,7 +1,7 @@
 import { InitOptions } from '../types/index'
 import { obj2query } from 'utils'
 import { catchXhr, catchFetch } from './catchRequest'
-import { SendType } from '../types/sendType'
+import { SendType } from './types/sendType'
 import { ERRORTYPES, ERRORNAMETYPES } from '../common/errorType'
 import { logMethods } from '../common/logMethods'
 import { BindStaticEvent } from './eventHandle'
@@ -24,11 +24,11 @@ function getHttpType(url) {
     }
 }
 
-function sendImgLog(url) {
+const sendImgLog = function(url) {
     new Image().src = url;
 }
 
-function sendBeacon(params, type='formData') {
+const sendBeacon = function(params, type='formData') {
     if (type !== 'formData') return
     const formData = new FormData()
     for (const item in params) {
@@ -42,7 +42,7 @@ function sendBeacon(params, type='formData') {
     window.navigator.sendBeacon(params.dsn, formData)
 }
 
-export class ErrorForShatter {
+class ErrorForShatter {
     private options: InitOptions
     private sendType: logMethods = logMethods['img']
     private hooks
@@ -159,3 +159,4 @@ export class ErrorForShatter {
     }
 }
 
+export { ErrorForShatter, sendBeacon, sendImgLog }

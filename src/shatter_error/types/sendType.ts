@@ -1,4 +1,4 @@
-import { ERRORTYPES, ERRORNAMETYPES } from '../common/errorType'
+import { ERRORTYPES, ERRORNAMETYPES } from '../../common/errorType'
 export interface SendType {
     [key: string]: string | number | unknown
     type?: ERRORTYPES

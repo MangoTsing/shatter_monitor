@@ -1,4 +1,4 @@
-import { SendType } from './sendType'
+import { SendType } from '../shatter_error/types/sendType'
 
 type CANCEL = null | undefined | boolean
 

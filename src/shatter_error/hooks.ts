@@ -1,4 +1,4 @@
-import { SendType } from '../types/sendType'
+import { SendType } from './types/sendType'
 import { HooksClassType, HooksTypes } from '../types/index'
 
 export default class Hooks implements HooksTypes, HooksClassType {

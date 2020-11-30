@@ -21,6 +21,12 @@ var shatter = (function (exports) {
         return Object.prototype.toString.call(param).indexOf('Error') > -1;
     }
 
+    function getLocationHref() {
+        if (typeof document === 'undefined' || document.location == null)
+            return '';
+        return document.location.href;
+    }
+
     const catchXhr = function (sendFn) {
         if (!window.XMLHttpRequest)
             return;
@@ -84,6 +90,7 @@ var shatter = (function (exports) {
         ERRORTYPES["FETCH_ERROR"] = "HTTP_ERROR";
         ERRORTYPES["RESOURCE_ERROR"] = "RESOURCE_ERROR";
         ERRORTYPES["PROMISE_ERROR"] = "PROMISE_ERROR";
+        ERRORTYPES["VUE_ERROR"] = "VUE_ERROR";
     })(ERRORTYPES || (ERRORTYPES = {}));
     var ERRORNAMETYPES;
     (function (ERRORNAMETYPES) {
@@ -93,6 +100,7 @@ var shatter = (function (exports) {
         ERRORNAMETYPES["consoleError"] = "CONSOLE_ERROR";
         ERRORNAMETYPES["ajaxError"] = "AJAX_ERROR";
         ERRORNAMETYPES["fetchError"] = "FETCH_ERROR";
+        ERRORNAMETYPES["VueError"] = "VueError";
     })(ERRORNAMETYPES || (ERRORNAMETYPES = {}));
 
     const BindStaticEvent = function (w, options) {
@@ -217,10 +225,10 @@ var shatter = (function (exports) {
             return 'other';
         }
     }
-    function sendImgLog(url) {
+    const sendImgLog = function (url) {
         new Image().src = url;
-    }
-    function sendBeacon(params, type = 'formData') {
+    };
+    const sendBeacon = function (params, type = 'formData') {
         if (type !== 'formData')
             return;
         const formData = new FormData();
@@ -234,7 +242,7 @@ var shatter = (function (exports) {
             formData.append(item, content);
         }
         window.navigator.sendBeacon(params.dsn, formData);
-    }
+    };
     class ErrorForShatter {
         constructor(options) {
             this.sendType = "img";
@@ -358,6 +366,38 @@ var shatter = (function (exports) {
         }
     }
 
+    function formatComponentName(vm) {
+        if (vm.$root === vm)
+            return 'root';
+        const name = vm._isVue ? (vm.$options && vm.$options.name) || (vm.$options && vm.$options._componentTag) : vm.name;
+        return ((name ? 'component <' + name + '>' : 'anonymous component') +
+            (vm._isVue && vm.$options && vm.$options.__file ? ' at ' + (vm.$options && vm.$options.__file) : ''));
+    }
+    function handleVueError(err, vm, info) {
+        const componentName = formatComponentName(vm);
+        const propsData = vm.$options && vm.$options.propsData;
+        const data = {
+            type: ERRORTYPES.VUE_ERROR,
+            msg: `${err.message}(${info})`,
+            url: getLocationHref(),
+            componentName: componentName,
+            propsData: propsData || '',
+            name: ERRORNAMETYPES['VueError'],
+            stack: err.stack || []
+        };
+        return data;
+    }
+
+    class ShatterErrorVue {
+        static install(Vue, options) {
+            const shatter = new ErrorForShatter(options);
+            Vue.config.errorHandler = function (err, vm, info) {
+                const errorData = handleVueError.apply(null, [err, vm, info]);
+                shatter.report(errorData);
+            };
+        }
+    }
+
     class ShatterInit {
         constructor(options) {
             const { usage } = options;
@@ -390,6 +430,7 @@ var shatter = (function (exports) {
     exports.BehaviorForShatter = BehaviorForShatter;
     exports.ErrorForShatter = ErrorForShatter;
     exports.PerformanceForShatter = PerformanceForShatter;
+    exports.ShatterErrorVue = ShatterErrorVue;
     exports.ShatterInit = ShatterInit;
 
     Object.defineProperty(exports, '__esModule', { value: true });
