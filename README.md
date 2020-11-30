@@ -15,7 +15,7 @@ More features(like hooks) in development...
 - Add more hooks
 - Typescript type for function
 - Add user behavior stack
-- Support vue 2.x & 3.x
+- Support vue ~~2.x~~(finish) && 3.x
 - Support Performance Monitor (a part of shatter_monitor)
 - Support Behavior Monitor (a part of shatter_monitor)
 
