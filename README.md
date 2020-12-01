@@ -15,7 +15,6 @@ More features(like hooks) in development...
 - Add more hooks
 - Typescript type for function
 - Add user behavior stack
-- Support vue 3.x
 - Support Performance Monitor (a part of shatter_monitor)
 - Support Behavior Monitor (a part of shatter_monitor)
 
@@ -41,7 +40,7 @@ const Shatter = new ShatterInit({
 </script>
 ```
 
-### Vue 2.x
+### Vue
 
 ```
 //terminal
@@ -49,6 +48,8 @@ npm install --save shatter_monitor
 
 // main.js
 import { ShatterErrorVue } from 'shatter_monitor'
+
+// vue 2.x
 
 Vue.use(ShatterErrorVue, {
     dsn: 'https://your.site.com',
@@ -63,6 +64,22 @@ Vue.use(ShatterErrorVue, {
     blockConsole: true
 })
 
+// or vue-next
+
+const app = createApp()
+
+app.use(ShatterErrorVue, {
+    dsn: 'https://your.site.com',
+    appkey: 'mangotsing',
+    debug: false,
+    beforeSendData: () => {
+        console.log('test')
+        return true
+    },
+    usage: 'all', // or ['ErrorForShatter', 'PerformanceForShatter', 'BehaviorForShatter']
+    onlyImg: true,
+    blockConsole: true
+})
 
 ```
 
