@@ -33,28 +33,29 @@ var shatter = (function (exports) {
         const xmlhttp = window.XMLHttpRequest;
         const _oldSend = xmlhttp.prototype.send;
         const _oldOpen = xmlhttp.prototype.open;
-        const _handleEvent = function (event, args, openArgs) {
+        const _handleEvent = function (event, args, openArgs, openTime) {
             if (event && event.currentTarget && event.currentTarget.status !== 200) {
-                sendFn && sendFn(event, args, openArgs);
+                sendFn && sendFn(event, args, openArgs, openTime);
             }
         };
         xmlhttp.prototype.open = function () {
             const args = arguments;
             this._openArgs = args;
+            this._openTime = new Date().getTime();
             return _oldOpen.apply(this, args);
         };
         xmlhttp.prototype.send = function () {
             const args = arguments;
             if (this['addEventListener']) {
-                this['addEventListener']('error', function (e) { _handleEvent(e, args, this._openArgs); });
-                this['addEventListener']('load', function (e) { _handleEvent(e, args, this._openArgs); });
-                this['addEventListener']('abort', function (e) { _handleEvent(e, args, this._openArgs); });
+                this['addEventListener']('error', function (e) { _handleEvent(e, args, this._openArgs, this._openTime); });
+                this['addEventListener']('load', function (e) { _handleEvent(e, args, this._openArgs, this._openTime); });
+                this['addEventListener']('abort', function (e) { _handleEvent(e, args, this._openArgs, this._openTime); });
             }
             else {
                 const _oldStateChange = this['onreadystatechange'];
                 this['onreadystatechange'] = function (event) {
                     if (this.readyState === 4) {
-                        _handleEvent(event, args, this._openArgs);
+                        _handleEvent(event, args, this._openArgs, this._openTime);
                     }
                     _oldStateChange && _oldStateChange.apply(this, args);
                 };
@@ -68,15 +69,16 @@ var shatter = (function (exports) {
         const _oldFetch = window.fetch;
         window.fetch = function () {
             const args = arguments;
+            const openTime = new Date().getTime();
             return _oldFetch.apply(this, args)
                 .then((res) => {
                 if (!res.ok) {
-                    sendFn && sendFn(res, args);
+                    sendFn && sendFn(res, args, openTime);
                 }
                 return res;
             })
                 .catch((error) => {
-                errorFn && errorFn(error.toString(), args);
+                errorFn && errorFn(error.toString(), args, openTime);
                 throw error;
             });
         };
@@ -168,10 +170,16 @@ var shatter = (function (exports) {
                 return (...args) => {
                     args.forEach(item => {
                         if (isError(item)) {
-                            const fileMsg = item.stack.split('\n')[1].split('at ')[1];
+                            let fileMsg;
+                            if (item.stack && item.stack.split('\n')[1]) {
+                                fileMsg = item.stack && item.stack.split('\n')[1].split('at ')[1];
+                            }
+                            else {
+                                fileMsg = item.stack;
+                            }
                             const fileArr = fileMsg.split(':');
                             const line = fileArr[fileArr.length - 2];
-                            const col = fileArr[fileArr.length - 2];
+                            const col = fileArr[fileArr.length - 1];
                             const url = (fileMsg.split('(')[1] && fileMsg.split('(')[1].slice(0, -line.length - col.length - 2)) || 'anonymousFunction';
                             w.report({
                                 name: ERRORNAMETYPES['consoleError'], msg: item.stack, url, line, col, type: ERRORTYPES['LOG_ERROR']
@@ -267,13 +275,15 @@ var shatter = (function (exports) {
             }
             if (!blockHttpRequest) {
                 if (!blockXhr) {
-                    catchXhr((event, args, openArgs) => {
+                    catchXhr((event, args, openArgs, openTime) => {
                         const target = event.currentTarget;
                         const url = target.responseURL;
+                        const fetchTimeline = new Date().getTime() - openTime;
                         this.report({
                             name: ERRORNAMETYPES['ajaxError'],
                             url: url,
                             type: ERRORTYPES['FETCH_ERROR'],
+                            fetchTimeline,
                             request: {
                                 method: openArgs[0],
                                 httpType: getHttpType(url),
@@ -287,14 +297,16 @@ var shatter = (function (exports) {
                     });
                 }
                 if (!blockFetch) {
-                    catchFetch((res, args) => {
+                    catchFetch((res, args, openTime) => {
                         res.text().then(text => {
                             const url = res.url || args[0];
+                            const fetchTimeline = new Date().getTime() - openTime;
                             this.report({
                                 name: ERRORNAMETYPES['fetchError'],
                                 url: url,
                                 msg: res.statusText,
                                 type: ERRORTYPES['FETCH_ERROR'],
+                                fetchTimeline,
                                 request: {
                                     httpType: getHttpType(url),
                                     method: args[1].method,
@@ -306,12 +318,14 @@ var shatter = (function (exports) {
                                 }
                             });
                         });
-                    }, (error, args) => {
+                    }, (error, args, openTime) => {
                         const httpType = getHttpType(args[0]);
+                        const fetchTimeline = new Date().getTime() - openTime;
                         this.report({
                             name: ERRORNAMETYPES['fetchError'],
                             msg: error,
                             url: args[0],
+                            fetchTimeline,
                             type: ERRORTYPES['FETCH_ERROR'],
                             request: {
                                 httpType: httpType,

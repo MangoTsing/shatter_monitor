@@ -91,10 +91,15 @@ export const BindStaticEvent = function (w: eventWarp, options: BlockEventSingle
             return (...args) => {
                 args.forEach(item => {
                     if (isError(item)) {
-                        const fileMsg = item.stack.split('\n')[1].split('at ')[1]
+                        let fileMsg
+                        if (item.stack && item.stack.split('\n')[1]) {
+                            fileMsg = item.stack && item.stack.split('\n')[1].split('at ')[1]
+                        } else {
+                            fileMsg = item.stack
+                        }
                         const fileArr = fileMsg.split(':')
                         const line = fileArr[fileArr.length - 2]
-                        const col = fileArr[fileArr.length - 2]
+                        const col = fileArr[fileArr.length - 1]
                         const url = (fileMsg.split('(')[1] && fileMsg.split('(')[1].slice(0, -line.length -col.length - 2)) || 'anonymousFunction'
                         w.report({
                             name: ERRORNAMETYPES['consoleError'], msg: item.stack, url, line, col, type: ERRORTYPES['LOG_ERROR']

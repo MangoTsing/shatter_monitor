@@ -73,13 +73,15 @@ class ErrorForShatter {
 
         if (!blockHttpRequest) {
             if (!blockXhr) {
-                catchXhr((event: any, args: IArguments, openArgs: IArguments) => {
+                catchXhr((event: any, args: IArguments, openArgs: IArguments, openTime: number) => {
                     const target = event.currentTarget
                     const url = target.responseURL
+                    const fetchTimeline = new Date().getTime() - openTime
                     this.report({
                         name: ERRORNAMETYPES['ajaxError'],
                         url: url,
                         type: ERRORTYPES['FETCH_ERROR'],
+                        fetchTimeline,
                         request: {
                             method: openArgs[0],
                             httpType: getHttpType(url),
@@ -94,14 +96,16 @@ class ErrorForShatter {
             }
 
             if (!blockFetch) {
-                catchFetch((res: Response, args: IArguments) => {
+                catchFetch((res: Response, args: IArguments, openTime: number) => {
                     res.text().then(text => {
                         const url = res.url || args[0]
+                        const fetchTimeline = new Date().getTime() - openTime
                         this.report({
                             name: ERRORNAMETYPES['fetchError'],
                             url: url,
                             msg: res.statusText,
                             type: ERRORTYPES['FETCH_ERROR'],
+                            fetchTimeline,
                             request: {
                                 httpType: getHttpType(url),
                                 method: args[1].method,
@@ -113,12 +117,14 @@ class ErrorForShatter {
                             }
                         })
                     })
-                }, (error: string, args) => {
+                }, (error: string, args: IArguments, openTime: number) => {
                     const httpType = getHttpType(args[0])
+                    const fetchTimeline = new Date().getTime() - openTime
                     this.report({
                         name: ERRORNAMETYPES['fetchError'],
                         msg: error,
                         url: args[0],
+                        fetchTimeline,
                         type: ERRORTYPES['FETCH_ERROR'],
                         request: {
                             httpType: httpType,
