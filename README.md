@@ -59,7 +59,6 @@ Vue.use(ShatterErrorVue, {
         console.log('test')
         return true
     },
-    usage: 'all', // or ['ErrorForShatter', 'PerformanceForShatter', 'BehaviorForShatter']
     onlyImg: true,
     blockConsole: true
 })
@@ -76,7 +75,6 @@ app.use(ShatterErrorVue, {
         console.log('test')
         return true
     },
-    usage: 'all', // or ['ErrorForShatter', 'PerformanceForShatter', 'BehaviorForShatter']
     onlyImg: true,
     blockConsole: true
 })
