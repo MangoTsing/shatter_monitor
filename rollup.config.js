@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
 import { terser } from 'rollup-plugin-terser'
 import clear from 'rollup-plugin-clear'
+
 const esmPackage = {
   input: 'src/index.ts',
   output: {
@@ -51,8 +52,7 @@ const localDebug = {
   output: {
     file: `${process.cwd()}/dist/bundle.js`,
     format: 'esm',
-    name: 'shatter',
-    context: 'window'
+    name: 'shatter'
   },
   plugins: [
     resolve(),
@@ -70,8 +70,7 @@ const iifePackage = {
   output: {
     file: 'build/index.min.js',
     format: 'iife',
-    name: 'shatter',
-    context: 'window'
+    name: 'shatter'
   },
   plugins: [
     resolve(),
@@ -79,6 +78,9 @@ const iifePackage = {
       exclude: 'node_modules'
     }),
     json(),
+    clear({
+      targets: ['build']
+    }),
     typescript({
       tsconfigOverride: { compilerOptions: { declaration: false } }
     }),
