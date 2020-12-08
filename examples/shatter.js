@@ -108,6 +108,8 @@ var shatter = (function (exports) {
     const BindStaticEvent = function (w, options) {
         if (!options.blockTry) {
             const originAddEventListener = EventTarget.prototype.addEventListener;
+            const originRemoveEventListener = EventTarget.prototype.removeEventListener;
+            const catchFuncStack = [];
             EventTarget.prototype.addEventListener = function (type, listener, options) {
                 const wrappedListener = function () {
                     try {
@@ -117,7 +119,29 @@ var shatter = (function (exports) {
                         throw err;
                     }
                 };
+                catchFuncStack.push({
+                    origin: listener,
+                    wrap: wrappedListener
+                });
                 return originAddEventListener.call(this, type, wrappedListener, options);
+            };
+            EventTarget.prototype.removeEventListener = function (type, listener, options) {
+                let wrap;
+                const isInclude = catchFuncStack.some((item) => {
+                    if (item.origin === listener) {
+                        wrap = item.wrap;
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                if (isInclude) {
+                    return originRemoveEventListener.call(this, type, wrap, options);
+                }
+                else {
+                    return originRemoveEventListener.call(this, type, listener, options);
+                }
             };
         }
         if (!options.blockError) {
