@@ -4,7 +4,7 @@ A tiny tool for Site **Error & Performance & User Behavior** Monitor.
 
 It is a shatter monitor tool, but it can be combined to form a complete tool.
 
-[release @1.0.2](https://cdn.jsdelivr.net/npm/shatter_monitor@1.0.2/build/index.min.js) Only `3Kb` in size.
+[release @1.0.4](https://cdn.jsdelivr.net/npm/shatter_monitor@1.0.2/build/index.min.js) Only `3Kb` in size.
 
 Specific options information may be viewed in [index.ts file](https://github.com/MangoTsing/shatter_monitor/blob/master/src/types/index.ts)
 
