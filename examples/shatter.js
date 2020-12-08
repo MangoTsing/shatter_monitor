@@ -429,10 +429,20 @@ var shatter = (function (exports) {
     class ShatterErrorVue {
         static install(Vue, options) {
             const shatter = new ErrorForShatter(options);
-            Vue.config.errorHandler = function (err, vm, info) {
-                const errorData = handleVueError.apply(null, [err, vm, info]);
-                shatter.report(errorData);
-            };
+            if (Vue.config.errorHandler) {
+                const oldHandler = Vue.config.errorHandler;
+                Vue.config.errorHandler = function (err, vm, info) {
+                    const errorData = handleVueError.apply(null, [err, vm, info]);
+                    shatter.report(errorData);
+                    oldHandler.call(this, err, vm, info);
+                };
+            }
+            else {
+                Vue.config.errorHandler = function (err, vm, info) {
+                    const errorData = handleVueError.apply(null, [err, vm, info]);
+                    shatter.report(errorData);
+                };
+            }
         }
     }
 

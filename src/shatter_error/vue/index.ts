@@ -7,9 +7,18 @@ import { SendType } from '../types/sendType'
 export class ShatterErrorVue {
     static install(Vue: VueInstance, options: InitOptions): void {
       const shatter = new ErrorForShatter(options)
-      Vue.config.errorHandler = function (err: Error, vm: ViewModel, info: string): void {
-        const errorData: SendType = handleVueError.apply(null, [err, vm, info])
-        shatter.report(errorData)
+      if (Vue.config.errorHandler) {
+        const oldHandler = Vue.config.errorHandler
+        Vue.config.errorHandler = function (err: Error, vm: ViewModel, info: string): void {
+          const errorData: SendType = handleVueError.apply(null, [err, vm, info])
+          shatter.report(errorData)
+          oldHandler.call(this, err, vm, info)
+        }
+      } else {
+        Vue.config.errorHandler = function (err: Error, vm: ViewModel, info: string): void {
+          const errorData: SendType = handleVueError.apply(null, [err, vm, info])
+          shatter.report(errorData)
+        }
       }
     }
 }
