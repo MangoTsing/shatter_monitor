@@ -32,6 +32,11 @@
 </script>
 <script src="http://localhost:8081/error.js"></script> 
 <script>
+  (function (){
+      document.getElementById('jsButton').onclick = function(){
+        throw new Error('im js Error')
+      }
+  })();
   (function(){
     document.getElementById('removeConsoleButton').addEventListener('click', function(){
       document.getElementById('consoleButton').removeEventListener('click', addListen)

@@ -12,9 +12,9 @@ More features(like hooks) in development...
 
 ## Next
 
+- Perfect Beacon method
+- Merge Many Same Errors happened in a moment
 - Add more hooks
-- Typescript type for function
-- Add user behavior stack
 - Support Performance Monitor (a part of shatter_monitor)
 - Support Behavior Monitor (a part of shatter_monitor)
 
@@ -61,7 +61,7 @@ Vue.use(ShatterErrorVue, {
         return true
     },
     onlyImg: true,
-    blockConsole: true
+    blockTry: true
 })
 
 // or vue-next
@@ -77,7 +77,7 @@ app.use(ShatterErrorVue, {
         return true
     },
     onlyImg: true,
-    blockConsole: true
+    blockTry: true
 })
 
 ```
