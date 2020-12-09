@@ -430,7 +430,8 @@ var shatter = (function (exports) {
         static install(Vue, options) {
             const shatter = new ErrorForShatter(options);
             const asyncErrorHandler = (err) => {
-                throw new Error(err);
+                const errString = typeof err === 'object' ? JSON.stringify(err) : err;
+                throw new Error(errString);
             };
             Vue.mixin({
                 beforeCreate() {

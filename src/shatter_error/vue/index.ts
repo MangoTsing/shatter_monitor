@@ -7,8 +7,9 @@ import { SendType } from '../types/sendType'
 export class ShatterErrorVue {
     static install(Vue: VueInstance, options: InitOptions): void {
       const shatter = new ErrorForShatter(options)
-      const asyncErrorHandler = (err: string) => {
-        throw new Error(err)
+      const asyncErrorHandler = (err: any) => {
+        const errString = typeof err === 'object' ? JSON.stringify(err) : err
+        throw new Error(errString)
       }
       Vue.mixin({
         beforeCreate() {
