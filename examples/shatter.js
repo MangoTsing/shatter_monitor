@@ -429,6 +429,26 @@ var shatter = (function (exports) {
     class ShatterErrorVue {
         static install(Vue, options) {
             const shatter = new ErrorForShatter(options);
+            const asyncErrorHandler = (err) => {
+                throw new Error(err);
+            };
+            Vue.mixin({
+                beforeCreate() {
+                    const methods = this.$options.methods || {};
+                    Object.keys(methods).forEach(key => {
+                        let fn = methods[key];
+                        this.$options.methods[key] = function (...args) {
+                            let ret = fn.apply(this, args);
+                            if (ret && typeof ret.catch === 'function') {
+                                return ret.catch(asyncErrorHandler);
+                            }
+                            else {
+                                return ret;
+                            }
+                        };
+                    });
+                }
+            });
             if (Vue.config.errorHandler) {
                 const oldHandler = Vue.config.errorHandler;
                 Vue.config.errorHandler = function (err, vm, info) {
