@@ -1,6 +1,6 @@
 {
   "name": "shatter_monitor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A SDK for monitoring browser errors",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -44,7 +44,8 @@
     "example": "examples"
   },
   "dependencies": {
-    "eslint": "^7.14.0"
+    "eslint": "^7.14.0",
+    "rollup-plugin-babel": "^4.4.0"
   },
   "repository": {
     "type": "git",

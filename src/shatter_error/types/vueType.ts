@@ -1,4 +1,5 @@
 export interface VueInstance {
+    prototype: any;
     config?: VueConfiguration
     mixin(hooks: { [key: string]: () => void }): void
     util: {

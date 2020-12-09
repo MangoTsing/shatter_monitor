@@ -7,6 +7,7 @@ import { SendType } from '../types/sendType'
 export class ShatterErrorVue {
     static install(Vue: VueInstance, options: InitOptions): void {
       const shatter = new ErrorForShatter(options)
+      Vue.prototype.$report = shatter.report
       const asyncErrorHandler = (err: any) => {
         const errString = typeof err === 'object' ? JSON.stringify(err) : err
         throw new Error(errString)

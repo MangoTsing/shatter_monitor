@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
 import { terser } from 'rollup-plugin-terser'
 import clear from 'rollup-plugin-clear'
+import babel from 'rollup-plugin-babel'
 
 const esmPackage = {
   input: 'src/index.ts',
@@ -25,6 +26,10 @@ const esmPackage = {
     typescript({
       useTsconfigDeclarationDir: true,
       clean: true
+    }),
+    babel({
+      extensions: [".js", ".ts"],
+      exclude: "node_modules/**"
     })
   ]
 }
@@ -44,6 +49,10 @@ const cjsPackage = {
     json(),
     typescript({
       tsconfigOverride: { compilerOptions: { declaration: false } }
+    }),
+    babel({
+      extensions: [".js", ".ts"],
+      exclude: "node_modules/**"
     })
   ]
 }
@@ -62,6 +71,10 @@ const localDebug = {
     json(),
     typescript({
       tsconfigOverride: { compilerOptions: { declaration: false } }
+    }),
+    babel({
+      extensions: [".js", ".ts"],
+      exclude: "node_modules/**"
     })
   ]
 }
@@ -84,7 +97,11 @@ const iifePackage = {
     typescript({
       tsconfigOverride: { compilerOptions: { declaration: false } }
     }),
-    terser()
+    terser(),
+    babel({
+      extensions: [".js", ".ts"],
+      exclude: "node_modules/**"
+    })
   ]
 }
 const examplePackage = {
@@ -102,6 +119,10 @@ const examplePackage = {
     json(),
     typescript({
       tsconfigOverride: { compilerOptions: { declaration: false } }
+    }),
+    babel({
+      extensions: [".js", ".ts"],
+      exclude: "node_modules/**"
     })
   ]
 }
