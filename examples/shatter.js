@@ -531,7 +531,18 @@ var shatter = (function (exports) {
         }
 
         var asyncErrorHandler = function asyncErrorHandler(err) {
-          var errString = typeof err === 'object' ? JSON.stringify(err) : err;
+          var errString;
+
+          if (typeof err === 'object') {
+            if (isError(err)) {
+              throw err;
+            } else {
+              errString = JSON.stringify(err);
+            }
+          } else {
+            errString = err;
+          }
+
           throw new Error(errString);
         };
 
