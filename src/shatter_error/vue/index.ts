@@ -3,6 +3,7 @@ import { handleVueError } from './helper'
 import { ErrorForShatter } from '../index'
 import { InitOptions } from 'types/index'
 import { SendType } from '../types/sendType'
+import { isError } from 'utils'
 
 export class ShatterErrorVue {
     static install(Vue: VueInstance, options: InitOptions): void {
@@ -14,7 +15,16 @@ export class ShatterErrorVue {
         Vue.prototype.$report = shatter.report
       }
       const asyncErrorHandler = (err: any) => {
-        const errString = typeof err === 'object' ? JSON.stringify(err) : err
+        let errString
+        if (typeof err === 'object') {
+          if (isError(err)) {
+            throw err
+          } else {
+            errString = JSON.stringify(err)
+          }
+        } else {
+          errString = err
+        }
         throw new Error(errString)
       }
       Vue.mixin({
