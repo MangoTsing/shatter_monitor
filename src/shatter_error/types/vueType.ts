@@ -7,6 +7,7 @@ export interface VueInstance {
     }
   }
 export interface VueConfiguration {
+    globalProperties: any;
     silent: boolean
     errorHandler(err: Error, vm: ViewModel, info: string): void
     warnHandler(msg: string, vm: ViewModel, trace: string): void

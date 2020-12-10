@@ -138,8 +138,9 @@ class ErrorForShatter {
         }
     }
 
-    report(params:SendType) {
-        const { dsn, appkey } = this.options
+    report(params: SendType) {
+        const { dsn } = params || this.options
+        const { appkey } = this.options
         Object.assign(params, {
             _t: new Date().getTime(),
             appkey

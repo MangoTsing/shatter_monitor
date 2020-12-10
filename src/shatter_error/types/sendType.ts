@@ -1,12 +1,14 @@
 import { ERRORTYPES, ERRORNAMETYPES } from '../../common/errorType'
 export interface SendType {
     [key: string]: string | number | unknown
+    dsn?: string
     type?: ERRORTYPES
     msg?: string
     url?: string
     line?: number
     col?: number
     name?: ERRORNAMETYPES
+    _t?: number
     stack?: unknown // 堆栈储存
     
     // fetch

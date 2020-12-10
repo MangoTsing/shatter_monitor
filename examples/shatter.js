@@ -440,9 +440,10 @@ var shatter = (function (exports) {
       };
 
       _proto.report = function report(params) {
-        var _this$options = this.options,
-            dsn = _this$options.dsn,
-            appkey = _this$options.appkey;
+        var _ref = params || this.options,
+            dsn = _ref.dsn;
+
+        var appkey = this.options.appkey;
         Object.assign(params, {
           _t: new Date().getTime(),
           appkey: appkey
@@ -522,7 +523,12 @@ var shatter = (function (exports) {
 
       ShatterErrorVue.install = function install(Vue, options) {
         var shatter = new ErrorForShatter(options);
-        Vue.prototype.$report = shatter.report;
+
+        if (Vue.config.globalProperties) {
+          Vue.config.globalProperties.$report = shatter.report;
+        } else {
+          Vue.prototype.$report = shatter.report;
+        }
 
         var asyncErrorHandler = function asyncErrorHandler(err) {
           var errString = typeof err === 'object' ? JSON.stringify(err) : err;
