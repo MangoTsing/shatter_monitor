@@ -31,9 +31,9 @@ export class ShatterErrorVue {
         beforeCreate() {
           const methods = this.$options.methods || {}
           Object.keys(methods).forEach(key => {
-            let fn = methods[key]
+            const fn = methods[key]
             this.$options.methods[key] = function(...args: any) {
-              let ret = fn.apply(this, args)
+              const ret = fn.apply(this, args)
               if (ret && typeof ret.catch === 'function') {
                 return ret.catch(asyncErrorHandler)
               } else { // 默认错误处理
