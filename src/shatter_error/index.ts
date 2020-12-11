@@ -75,7 +75,7 @@ class ErrorForShatter {
             if (!blockXhr) {
                 catchXhr((event: any, args: IArguments, openArgs: IArguments, openTime: number) => {
                     const target = event.currentTarget
-                    const url = target.responseURL
+                    const url = target.responseURL || openArgs[1]
                     const fetchTimeline = new Date().getTime() - openTime
                     this.report({
                         name: ERRORNAMETYPES['ajaxError'],
@@ -139,7 +139,7 @@ class ErrorForShatter {
     }
 
     report(params: SendType) {
-        const { dsn } = params || this.options
+        const dsn = params.dsn || this.options.dsn
         const { appkey } = this.options
         Object.assign(params, {
             _t: new Date().getTime(),

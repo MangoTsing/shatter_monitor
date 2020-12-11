@@ -374,7 +374,7 @@ var shatter = (function (exports) {
           if (!blockXhr) {
             catchXhr(function (event, args, openArgs, openTime) {
               var target = event.currentTarget;
-              var url = target.responseURL;
+              var url = target.responseURL || openArgs[1];
               var fetchTimeline = new Date().getTime() - openTime;
 
               _this.report({
@@ -440,9 +440,7 @@ var shatter = (function (exports) {
       };
 
       _proto.report = function report(params) {
-        var _ref = params || this.options,
-            dsn = _ref.dsn;
-
+        var dsn = params.dsn || this.options.dsn;
         var appkey = this.options.appkey;
         Object.assign(params, {
           _t: new Date().getTime(),
