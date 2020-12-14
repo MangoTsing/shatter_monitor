@@ -1,4 +1,6 @@
-<h1 align="center">shatter_monitor</h1>
+<h1 align="center">
+    <img src="https://p0.ssl.qhimg.com/t01f02e9ee1a463b5bf.png"/>
+</h1>
 
 A tiny tool for Site **Error & Performance & User Behavior** Monitor.
 
