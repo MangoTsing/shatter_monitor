@@ -451,7 +451,7 @@ var shatter = (function (exports) {
         var query = obj2query(params);
 
         if (this.options.debug) {
-          console.log("log to : " + dsn + "?" + query);
+          console.log(this.sendType + " log to : " + dsn + "?" + query);
           return;
         }
 
@@ -581,6 +581,10 @@ var shatter = (function (exports) {
           Vue.config.errorHandler = function (err, vm, info) {
             var errorData = handleVueError.apply(null, [err, vm, info]);
             shatter.report(errorData);
+
+            if (options.debug) {
+              throw err;
+            }
           };
         }
       };

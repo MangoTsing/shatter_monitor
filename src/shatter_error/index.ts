@@ -151,7 +151,7 @@ class ErrorForShatter {
 
         const query = obj2query(params)
         if (this.options.debug) {
-            console.log(`log to : ${dsn}?${query}`)
+            console.log(`${this.sendType} log to : ${dsn}?${query}`)
             return
         }
         

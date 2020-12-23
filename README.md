@@ -6,7 +6,7 @@ A tiny tool for Site **Error & Performance & User Behavior** Monitor.
 
 It is a shatter monitor tool, but it can be combined to form a complete tool.
 
-There is [release @1.0.9](https://cdn.jsdelivr.net/npm/shatter_monitor@1.0.9/build/index.min.js).
+There is [release @1.0.11](https://cdn.jsdelivr.net/npm/shatter_monitor@1.0.11/build/index.min.js).
 
 Specific options information may be viewed in [index.ts file](https://github.com/MangoTsing/shatter_monitor/blob/master/src/types/index.ts)
 
@@ -51,6 +51,8 @@ You can use it for your **async** methods Error Report, like this:
 
 `this.$report(params: SendType)`
 
+Suggest `Vue Project` use `blockConsole: true`, otherwise `vue warn` will cause repeated errors.
+
 ```
 //terminal
 npm install --save shatter_monitor
@@ -68,6 +70,7 @@ Vue.use(ShatterErrorVue, {
         console.log('test')
         return true
     },
+    blockConsole: true
     onlyImg: true,
     blockTry: true
 })

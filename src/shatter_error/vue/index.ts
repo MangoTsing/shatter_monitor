@@ -14,7 +14,8 @@ export class ShatterErrorVue {
       } else {
         Vue.prototype.$report = shatter.report
       }
-      const asyncErrorHandler = (err: any) => {
+
+      const asyncErrorHandler = (err: any) => { // 改成不抛出错误，直接 report 上报
         let errString
         if (typeof err === 'object') {
           if (isError(err)) {
@@ -55,6 +56,9 @@ export class ShatterErrorVue {
         Vue.config.errorHandler = function (err: Error, vm: ViewModel, info: string): void {
           const errorData: SendType = handleVueError.apply(null, [err, vm, info])
           shatter.report(errorData)
+          if (options.debug) {
+            throw err
+          }
         }
       }
     }
