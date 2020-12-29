@@ -44,6 +44,7 @@
     "example": "examples"
   },
   "dependencies": {
+    "core-js": "3",
     "eslint": "^7.14.0",
     "rollup-plugin-babel": "^4.4.0"
   },

@@ -3,6 +3,10 @@
       [
         "@babel/preset-env",
         {
+          "targets": {
+            "ie": "9"
+          },
+          "useBuiltIns": "usage",
           // 避免转换成 CommonJS
           "modules": false,
           // 使用 loose 模式，避免产生副作用
